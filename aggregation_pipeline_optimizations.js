@@ -69,3 +69,19 @@ db.students.explain("executionStats").aggregate( [
     { $group: { _id: "$grade", frequency: { $sum: 1 } } },
     { $match: { "frequency": { $gt : 10 } } }
  ] , { hint: "_id_" })
+
+// In case of doubt, we can turn on the profiler!
+
+db.setProfilingLevel(2, { slowms: 200 })
+
+
+db.students.aggregate( [
+    { $sort : {  "age": -1 }},
+    { $match: { "age" : { $lt : 15 }}  },
+    { $group: { _id: "$grade", frequency: { $sum: 1 } } },
+    { $match: { "frequency": { $gt : 10 } } }
+ ] )
+
+// And we find out operation
+
+db.system.profile.find( { millis : { $gt : 1000 } } ).pretty()
